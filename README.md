@@ -12,13 +12,13 @@ This repository provides a fully automated Ansible playbook to clone Oracle Ente
 
 ---
 
-## ✅ Supported OEM Versions:
+## Supported OEM Versions:
 - Oracle Enterprise Manager 13.4
 - Oracle Enterprise Manager 13.5
 
 ---
 
-## 📋 High-Level Steps Performed:
+## High-Level Steps Performed:
 - Copy EMKey to repository
 - Clone OEM repository database (manual step, validation included)
 - Create and copy OMS binary
@@ -29,9 +29,6 @@ This repository provides a fully automated Ansible playbook to clone Oracle Ente
 - Plugin configuration
 - OMS startup and validation
 - Agent configuration and health check
-
----
-
 
 ---
 
@@ -63,16 +60,19 @@ agent_reg_password: mysecretpassword
 sys_password: my_sys_password
 sysman_password: my_sysman_password
 ```
+---
 # Running the Playbook
 
 ansible-playbook -i inventory/hosts.ini clone_oms.yml
 
+---
 # Notes
 
 OPSS schema recreation is automatically triggered if OEM version ≤ 13.4.
 Ensure database connectivity, permissions, and binaries are in place before starting.
 DB cloning via RMAN must be handled manually but validated by this playbook.
 
+---
 # Contributing
 Pull requests and issues are welcome. Please ensure any changes are tested in both 13.4 and 13.5 environments.
 
