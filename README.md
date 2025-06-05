@@ -63,7 +63,7 @@ sysman_password: my_sysman_password
 ---
 # Running the Playbook
 
-ansible-playbook -i inventory/hosts.ini clone_oms.yml
+ansible-playbook -i your_inventory_loc/hosts.yml clone_oms.yml
 
 ---
 # Notes
