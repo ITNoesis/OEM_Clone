@@ -1,0 +1,19 @@
+---
+- name: OMS Clone Automation
+  hosts: target_server
+  become: true
+  vars_files:
+    - vars/main.yml
+
+  roles:
+    - check_oem_version
+    - copy_emkey
+    - clone_repo_db
+    - prepare_binaries
+    - install_agent
+    - paste_binary
+    - { role: opss_schema, when: is_oem_13_4_or_lower }
+    - clone_oms
+    - configure_plugin
+    - start_oms
+    - post_config
