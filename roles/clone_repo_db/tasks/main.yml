@@ -1,7 +1,9 @@
 ---
 - name: Clone repository DB using RMAN
   debug:
-    msg: "Manual RMAN clone required - provide documentation for DBA"
+    msg: 
+    - "Manual Clone - Using RMAN to Safely Clone a Database onto the Same Storage as the Source Database (Doc ID 2289796.1)"
+    - "Duplicate Oracle 19c Database- https://docs.oracle.com/en/database/oracle/oracle-database/19/bradv/rman-duplicating-databases.html#GUID-F31F9FCE-B610-49EB-B9DB-44B9AA4E838F"
 
 - name: Validate cloned DB status
   shell: |
