@@ -1,0 +1,12 @@
+---
+- name: Modify emctl for central console
+  replace:
+    path: "{{ oracle_home }}/bin/emctl"
+    regexp: 'CONSOLE_CFG=agent'
+    replace: 'CONSOLE_CFG=central'
+
+- name: Start OMS
+  shell: "./emctl start oms"
+  args:
+    chdir: "{{ oracle_home }}/bin"
+  become_user: oracle

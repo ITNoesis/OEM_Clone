@@ -1,0 +1,11 @@
+---
+- name: Clone the OMS
+  shell: >
+    {{ oracle_home }}/bin/omsca new -nostart
+    -EM_DOMAIN_NAME {{ em_domain_name }}
+    -NM_USER nodemanager
+    -AS_USERNAME weblogic
+    -MSPORT {{ msport }}
+    -REP_CONN_STR '{{ repo_conn_str }}'
+    -reuseOpssStore
+  become_user: oracle

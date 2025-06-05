@@ -1,0 +1,13 @@
+---
+- name: Clone repository DB using RMAN
+  debug:
+    msg: "Manual RMAN clone required - provide documentation for DBA"
+
+- name: Validate cloned DB status
+  shell: |
+    sqlplus / as sysdba <<EOF
+    SELECT username, account_status FROM dba_users
+    WHERE username IN ('SYSMAN', 'MGMT_VIEW');
+    EOF
+  register: db_status
+  become_user: oracle

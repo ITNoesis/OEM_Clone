@@ -1,0 +1,20 @@
+---
+- name: Check symbolic links in JDK man directory
+  shell: ls -l {{ oracle_home }}/oracle_common/jdk/man
+  register: man_links
+
+- name: Remove symbolic link if exists
+  file:
+    path: "{{ oracle_home }}/oracle_common/jdk/man/ja"
+    state: absent
+  when: '"ja ->" in man_links.stdout'
+
+- name: Create clone JAR of OMS
+  shell: >
+    {{ oracle_home }}/oracle_common/bin/copyBinary.sh
+    -javaHome {{ oracle_home }}/oracle_common/jdk
+    -archiveLoc {{ oms_clone_jar }}
+    -sourceOracleHomeLoc {{ oracle_home }}
+    -silent true
+    -invPtrLoc {{ oracle_home }}/oraInst.loc
+  become_user: oracle

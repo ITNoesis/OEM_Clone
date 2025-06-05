@@ -1,0 +1,8 @@
+---
+- name: Deploy Plugins
+  shell: >
+    {{ oracle_home }}/bin/pluginca -action deploy -isFirstOMS true
+    -plugins "{{ plugin_list }}"
+    -oracleHome {{ oracle_home }}
+    -middlewareHome {{ oracle_home }}
+  become_user: oracle

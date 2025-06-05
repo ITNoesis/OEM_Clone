@@ -1,0 +1,12 @@
+oracle_home: /u01/app/oracle/product/em135
+oms_clone_jar: /refresh/clone/oms_clone.jar
+agent_base: /refresh1/agent135
+agent_software: /tmp/13.5.0.0.0_AgentCore_226.zip
+em_domain_name: EM135_CLONE
+repo_conn_str: "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=dbhost)(PORT=1521))(CONNECT_DATA=(SID=EMREP)))"
+plugin_list: "oracle.sysman.db,oracle.sysman.emas,oracle.sysman.oh"
+msport: 7102
+cloned_oms_hostname: newoms.example.com
+agent_port: 3872
+upload_port: 4889
+agent_reg_password: mysecretpassword

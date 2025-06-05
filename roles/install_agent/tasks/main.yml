@@ -1,0 +1,12 @@
+---
+- name: Extract agent software
+  unarchive:
+    src: "{{ agent_software }}"
+    dest: "{{ agent_base }}"
+    remote_src: yes
+
+- name: Install agent using softwareOnly
+  shell: "./agentDeploy.sh AGENT_BASE_DIR={{ agent_base }} -softwareOnly"
+  args:
+    chdir: "{{ agent_base }}/13.5.0.0.0"
+  become_user: oracle

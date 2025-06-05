@@ -1,0 +1,10 @@
+---
+- name: Recreate ORACLE_HOME using pasteBinary.sh
+  shell: >
+    {{ agent_base }}/agent_13.5.0.0.0/oracle_common/bin/pasteBinary.sh
+    -javaHome {{ agent_base }}/agent_13.5.0.0.0/oracle_common/jdk/
+    -archiveLoc {{ oms_clone_jar }}
+    -targetOracleHomeLoc {{ oracle_home }}
+    -executeSysPrereqs false
+    -silent true
+  become_user: oracle
