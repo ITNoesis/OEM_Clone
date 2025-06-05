@@ -1,0 +1,10 @@
+---
+- name: Get OEM version
+  shell: "{{ oracle_home }}/bin/emctl version | grep 'Oracle Enterprise Manager Cloud Control' | awk '{print $NF}'"
+  register: oem_version_output
+  changed_when: false
+
+- name: Set OEM version fact
+  set_fact:
+    oem_version: "{{ oem_version_output.stdout }}"
+    is_oem_13_4_or_lower: "{{ (oem_version | regex_replace('[^0-9.]','') | float) <= 13.4 }}"
