@@ -1,4 +1,0 @@
----
-- name: Copy EMKey to repository
-  shell: "{{ oracle_home }}/bin/emctl config emkey -copy_to_repos"
-  become_user: oracle
