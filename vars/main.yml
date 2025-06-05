@@ -10,3 +10,5 @@ cloned_oms_hostname: newoms.example.com
 agent_port: 3872
 upload_port: 4889
 agent_reg_password: mysecretpassword
+sys_password: my_sys_password
+sysman_password: my_sysman_password
