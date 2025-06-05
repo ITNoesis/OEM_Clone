@@ -1,3 +1,5 @@
+<img width="664" alt="image" src="https://github.com/user-attachments/assets/611e431b-d729-45a6-b0e8-f8facd1587ec" />
+
 # OEM_Clone - Beta
 Automate the Oracle Enterprise Manager (OEM) Cloud Control OMS Cloning process using Ansible. Supported OEM versions: 13.4 and 13.5
 
