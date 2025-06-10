@@ -9,3 +9,8 @@
     -REP_CONN_STR '{{ repo_conn_str }}'
     -reuseOpssStore
   become_user: oracle
+
+- name: Validate OMS clone
+  fail:
+    msg: "OMS clone failed. Check logs for more details."
+  when: "'EM completed successfully' not in omsca_result.stdout"
