@@ -64,9 +64,9 @@ sysman_password: my_sysman_password
 ```
 ---
 # Running the Playbook
-
-ansible-playbook -i your_inventory_loc/hosts.yml clone_oms.yml
-
+```shell
+ansible-playbook -i your_inventory_loc/hosts.yml clone_oms.yml -f 1 -e 'source_server=<Source_OEM_Server> target_server=<Target_OEM_Server>'
+```
 ---
 # Notes
 
