@@ -10,3 +10,8 @@
   args:
     chdir: "{{ agent_base }}/13.5.0.0.0"
   become_user: oracle
+
+- name: Validate agent installation
+  fail:
+    msg: "Agent software-only installation failed."
+  when: "'Agent deployed successfully' not in agent_install.stdout"
