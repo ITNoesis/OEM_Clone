@@ -14,3 +14,4 @@ sys_password: my_sys_password
 sysman_password: my_sysman_password
 platform: "Linux x86-64"
 #platform: "Microsoft Windows x64 (64-bit)"
+agent_export_dest: /refresh1/agent135/export
