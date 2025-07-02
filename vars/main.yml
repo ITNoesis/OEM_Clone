@@ -12,3 +12,5 @@ upload_port: 4889
 agent_reg_password: mysecretpassword
 sys_password: my_sys_password
 sysman_password: my_sysman_password
+platform: "Linux x86-64"
+#platform: "Microsoft Windows x64 (64-bit)"
