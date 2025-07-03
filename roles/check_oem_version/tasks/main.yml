@@ -1,6 +1,6 @@
 ---
 - name: Get OEM version
-  shell: "{{ oracle_home }}/bin/emctl version | grep 'Oracle Enterprise Manager Cloud Control' | awk '{print $NF}'"
+  shell: "{{ oms_home }}/bin/emctl version | grep 'Oracle Enterprise Manager Cloud Control' | awk '{print $NF}'"
   register: oem_version_output
   changed_when: false
 
