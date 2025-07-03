@@ -8,32 +8,3 @@
   set_fact:
     oem_version: "{{ oem_version_output.stdout }}"
     is_oem_13_4_or_lower: "{{ (oem_version | regex_replace('[^0-9.]','') | float) <= 13.4 }}"
-
-- name: Check SYSMAN and MGMT_* account statuses
-  become: yes
-  become_user: "{{ source.os_user }}"
-  environment:
-    ORACLE_HOME: "{{ source.oracle_home }}"
-    ORACLE_SID: "{{ source.db_name }}{{ source.instance_number }}"
-  shell: |
-    {{ source.oracle_home }}/bin/sqlplus -s "/ as sysdba" <<SQLPLUS
-    SET PAGESIZE 0 FEEDBACK OFF VERIFY OFF HEADING OFF ECHO OFF
-    SELECT username || ' ' || account_status
-      FROM dba_users
-     WHERE username LIKE '%SYSMAN%'
-        OR username LIKE '%MGMT%';
-    EXIT;
-    SQLPLUS
-  register: account_status
-
-- name: Fail if any SYSMAN or MGMT_* user is expired or locked
-  fail:
-    msg: >
-      Detected problematic accounts:
-      {{ bad_accounts | join('\n  - ') }}
-  when: bad_accounts | length > 0
-  vars:
-    bad_accounts: >-
-      {{ account_status.stdout_lines
-         | select('search', '(EXPIRED|LOCKED)') 
-         | list }}
