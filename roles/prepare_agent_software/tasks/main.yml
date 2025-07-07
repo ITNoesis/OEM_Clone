@@ -1,81 +1,88 @@
 ---
-# Extract the agent image
-- name: Log in to EMCLI as sysman
+- name: Log in to EMCLI as sysman and extract OEM agent software
   become: true
-  ansible.builtin.expect:
-    command: "{{ oracle_home }}/emcli login -username=sysman"
-    responses:
-      '.*[Pp]assword.*': "{{ sysman_password }}"
+  become_user: "{{ source.os_user }}"
+  shell: >
+    echo "{{ source.sysman_password }}" \
+    | {{ source.oms_home }}/bin/emcli login -username=sysman \
+    && {{ source.oms_home }}/bin/emcli get_agentimage \
+         -platform="{{ platform }}" \
+         -version={{ source.oem_version }}.0.0.0 \
+         -destination="{{ agent_export_dest }}"
     timeout: 30
   args:
-    chdir: "{{ oracle_home }}"
-  no_log: true
+    chdir: "{{ source.oms_home }}"
+#  no_log: true
   register: emcli_login
-  changed_when: "'Login successful' in emcli_login.stdout or 'already logged in' in emcli_login.stdout"
+#  changed_when: "'Login successful' in emcli_login.stdout or 'already logged in' in emcli_login.stdout"
 
-- name: Extract OEM agent software via EMCLI
-  become: true
-  shell: >
-    {{ oracle_home }}/emcli get_agentimage
-      -platform="{{ platform }}"
-      -version={{ oem_version }}
-      -destination={{ agent_export_dest }}
-  args:
-    chdir: "{{ oracle_home }}"
-  register: _agent_extract
-  changed_when: "'Extraction complete' in _agent_extract.stdout"
+# - name: Extract OEM agent software via EMCLI
+#   become: true
+#   become_user: "{{ source.os_user }}"
+#   shell: >
+#     {{ source.oms_home }}/bin/emcli get_agentimage \
+#       -platform="{{ platform }}" \
+#       -version={{ source.oem_version }}.0.0.0 \
+#       -destination={{ agent_export_dest }}
+#   args:
+#     chdir: "{{ source.oms_home }}"
+#   register: agent_extract
+#   changed_when: "'Extraction complete' in agent_extract.stdout"
+#   failed_when: agent_extract.rc != 0
 
-# Zip up the software library directory (agent bits)
 - name: Create tarball of the agent software directory
   become: true
+  become_user: "{{ source.os_user }}"
   archive:
-    path: "{{ agent_export_dest }}"
-    dest: "{{ agent_export_dest }}/agent_software_{{ oem_version }}.tar.gz"
+    path: "{{ source.agent_base_path }}/"
+    dest: "{{ agent_export_dest }}/agent_software_{{ source.oem_version }}.tar.gz"
     format: gz
+  register: agent_archive
+  changed_when: agent_archive.dest is defined
 
 # -------------------------------------------------------
 # The next steps only apply for OEM 13.4 and earlier
 # -------------------------------------------------------
-- name: Backup BIP and SWLIB if OEM ≤ 13.4
-  become: true
-  block:
-    - name: Query the BIP_LOCATION from the OMS repository
-      shell: |
-        echo "SET PAGESIZE 0 FEEDBACK OFF VERIFY OFF HEADING OFF ECHO OFF
-        SELECT PROPERTY_VALUE
-          FROM mgmt_oms_property
-         WHERE PROPERTY_ID IN (
-           SELECT property_id
-             FROM mgmt_oms_property_def
-            WHERE property_name LIKE '%bip.SharedStorage%');" \
-        | sqlplus -s "sysman/{{ sysman_password }}@{{ repo_conn_str }}"
-      register: bip_query
+# - name: Backup BIP and SWLIB if OEM ≤ 13.4
+#   become: true
+#   block:
+#     - name: Query the BIP_LOCATION from the OMS repository
+#       shell: |
+#         echo "SET PAGESIZE 0 FEEDBACK OFF VERIFY OFF HEADING OFF ECHO OFF
+#         SELECT PROPERTY_VALUE
+#           FROM mgmt_oms_property
+#          WHERE PROPERTY_ID IN (
+#            SELECT property_id
+#              FROM mgmt_oms_property_def
+#             WHERE property_name LIKE '%bip.SharedStorage%');" \
+#         | sqlplus -s "sysman/{{ sysman_password }}@{{ repo_conn_str }}"
+#       register: bip_query
 
-    - name: Strip and save BIP dir path
-      set_fact:
-        bip_directory: "{{ bip_query.stdout | trim }}"
+#     - name: Strip and save BIP dir path
+#       set_fact:
+#         bip_directory: "{{ bip_query.stdout | trim }}"
 
-    - name: Tarball the BIP directory
-      archive:
-        path: "{{ bip_directory }}"
-        dest: "{{ backup_dir }}/bip.tar.gz"
-        format: gz
+#     - name: Tarball the BIP directory
+#       archive:
+#         path: "{{ bip_directory }}"
+#         dest: "{{ backup_dir }}/bip.tar.gz"
+#         format: gz
 
-    - name: Query the SWLIB base_path from the repository
-      shell: |
-        echo "SET PAGESIZE 0 FEEDBACK OFF VERIFY OFF HEADING OFF ECHO OFF
-        SELECT DISTINCT(base_path)
-          FROM em_swlib_oms_fs_details;" \
-        | sqlplus -s "{{ db_user }}/{{ sysman_password }}@{{ repo_conn_str }}"
-      register: swlib_query
+#     - name: Query the SWLIB base_path from the repository
+#       shell: |
+#         echo "SET PAGESIZE 0 FEEDBACK OFF VERIFY OFF HEADING OFF ECHO OFF
+#         SELECT DISTINCT(base_path)
+#           FROM em_swlib_oms_fs_details;" \
+#         | sqlplus -s "{{ db_user }}/{{ sysman_password }}@{{ repo_conn_str }}"
+#       register: swlib_query
 
-    - name: Strip and save SWLIB dir path
-      set_fact:
-        swlib_directory: "{{ swlib_query.stdout | trim }}"
+#     - name: Strip and save SWLIB dir path
+#       set_fact:
+#         swlib_directory: "{{ swlib_query.stdout | trim }}"
 
-    - name: Tarball the SWLIB directory
-      archive:
-        path: "{{ swlib_directory }}"
-        dest: "{{ backup_dir }}/swlib.tar.gz"
-        format: gz
-  when: oem_version is version('13.4','<=')
+#     - name: Tarball the SWLIB directory
+#       archive:
+#         path: "{{ swlib_directory }}"
+#         dest: "{{ backup_dir }}/swlib.tar.gz"
+#         format: gz
+#   when: oem_version is version('13.4','<=')
