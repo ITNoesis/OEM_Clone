@@ -1,20 +1,45 @@
 ---
 - name: Check symbolic links in JDK man directory
-  shell: ls -l {{ oracle_home }}/oracle_common/jdk/man
+  become: yes
+  become_user: "{{ source.os_user }}"
+  environment:
+    ORACLE_HOME: "{{ source.oms_home }}"
+  shell: >
+     ls -l "{{ source.oms_home }}/oracle_common/jdk/man"
   register: man_links
+  ignore_errors: true
 
-- name: Remove symbolic link if exists
-  file:
-    path: "{{ oracle_home }}/oracle_common/jdk/man/ja"
-    state: absent
-  when: '"ja ->" in man_links.stdout'
+- name: "Report any symbolic links"
+  debug:
+    msg:
+      - "man_links stdout: {{ man_links.stdout }}"
+      - "man_links stderr: {{ man_links.stderr }}"
+      - "Return code: {{ man_links.rc }}"
+  when: man_links is defined
+  ignore_errors: true
 
 - name: Create clone JAR of OMS
+  become: yes
+  become_user: "{{ source.os_user }}"
+  environment:
+    ORACLE_HOME: "{{ source.oms_home }}"
   shell: >
-    {{ oracle_home }}/oracle_common/bin/copyBinary.sh
-    -javaHome {{ oracle_home }}/oracle_common/jdk
-    -archiveLoc {{ oms_clone_jar }}
-    -sourceOracleHomeLoc {{ oracle_home }}
-    -silent true
-    -invPtrLoc {{ oracle_home }}/oraInst.loc
-  become_user: oracle
+    "{{ source.oms_home }}/oracle_common/bin/copyBinary.sh" \
+      -javaHome "{{ source.oms_home }}/oracle_common/jdk" \
+      -archiveLoc "{{ oms_clone_dir }}/oms_clone.jar" \
+      -sourceOracleHomeLoc "{{ source.oms_home }}" \
+      -silent true \
+      -invPtrLoc "{{ source.oms_home }}/oraInst.loc"
+  args:
+    executable: /bin/bash
+  register: clone_oms_jar
+  changed_when: clone_oms_jar.rc == 0
+  failed_when: clone_oms_jar.rc != 0
+
+- name: "OUTPUT-OMS binary jar"
+  debug:
+    msg:
+      - "OMS binary jar stdout: {{ clone_oms_jar.stdout | trim }}"
+      - "OMS binary jar stderr: {{ clone_oms_jar.stderr | trim }}"
+      - "Return code: {{ clone_oms_jar.rc }}"
+  when: clone_oms_jar is defined
