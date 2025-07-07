@@ -1,4 +1,23 @@
 ---
 - name: Copy EMKey to repository
-  shell: "{{ oracle_home }}/bin/emctl config emkey -copy_to_repos"
-  become_user: oracle
+  become: yes
+  become_user: "{{ source.os_user }}"
+  environment:
+    ORACLE_HOME: "{{ source.oms_home }}"
+  shell: >
+    echo "{{ source.sysman_password }}"
+    | {{ source.oms_home }}/bin/emctl config emkey -copy_to_repos
+  args:
+    executable: /bin/bash
+  no_log: true
+  register: copy_emkey_result
+  changed_when: "'completed' in copy_emkey_result.stdout.lower()"
+  failed_when: copy_emkey_result.rc != 0
+
+- name: "Provide output for em copy"
+  debug:
+    msg:
+      - "EMKey copy stdout: {{ copy_emkey_result.stdout }}"
+      - "EMKey copy stderr: {{ copy_emkey_result.stderr }}"
+      - "Return code: {{ copy_emkey_result.rc }}"
+  when: copy_emkey_result is defined
