@@ -1,0 +1,67 @@
+- name: Install required packages on Oracle Linux 7
+  become: yes
+  yum:
+    name:
+      - binutils
+      - gcc
+      - gcc-c++
+      - glibc
+      - glibc-devel
+      - glibc-devel.i686
+      - libaio
+      - libaio-devel
+      - libgcc
+      - libstdc++
+      - libstdc++-devel
+      - libnsl
+      - sysstat
+      - motif
+      - motif-devel
+      - redhat-lsb
+      - redhat-lsb-core
+      - openssl
+      - make
+      - libgcc.i686
+      - libstdc++.i686
+      - compat-libcap1
+      - compat-libstdc++-33
+      - compat-libstdc++-33.i686
+      - dejavu-serif-fonts
+      - ksh
+      - numactl
+      - numactl-devel
+    state: present
+  when: ansible_distribution_major_version == '7'
+
+- name: Install required packages on Oracle Linux 8 and 9
+  become: yes
+  dnf:
+    name:
+      - binutils
+      - gcc
+      - gcc-c++
+      - glibc
+      - glibc-devel
+      - glibc-devel.i686
+      - libaio
+      - libaio-devel
+      - libgcc
+      - libstdc++
+      - libstdc++-devel
+      - libnsl
+      - sysstat
+      - motif
+      - motif-devel
+      - redhat-lsb
+      - redhat-lsb-core
+      - openssl
+      - make
+    state: present
+  when: ansible_distribution_major_version in ['8','9']
+
+- name: Install compat-libpthread-nonshared RPM on Oracle Linux 9
+  become: yes
+  dnf:
+    name: https://yum.oracle.com/repo/OracleLinux/OL8/appstream/x86_64/getPackage/compat-libpthread-nonshared-2.28-72.0.1.el8_1.1.x86_64.rpm
+    state: present
+  when: ansible_distribution_major_version == '9'
