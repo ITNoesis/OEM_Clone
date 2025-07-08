@@ -1,0 +1,55 @@
+---
+# Name: OEM Clone Automation
+# Created by: Arun Yadav
+# Playbook to clone OEM from one server to another
+
+- name: Install Agent on Target OEM server
+  hosts: "{{ target_server }}"
+  become: true
+  tasks:
+    - name: install_agent role
+      import_role:
+        name: install_agent
+
+# - name: Paste OMS binary from Source to Target OEM server
+#   hosts: "{{ source_server }}"
+#   become: true
+#   tasks:
+#     - name: paste_binary role (delegated to target)
+#       import_role:
+#         name: paste_binary
+#       delegate_to: "{{ target_server }}"
+#       run_once: true
+
+# - name: Recreate OPSS schema if OEM ≤ 13.4 on Target
+#   hosts: "{{ target_server }}"
+#   become: true
+#   vars:
+#     # reference the fact set on the source host
+#     source_version: "{{ hostvars[groups['source_server'][0]].oem_version }}"
+#   tasks:
+#     - name: opss_schema role
+#       import_role:
+#         name: opss_schema
+#       when: source_version is version('13.4','<=')
+
+# - name: Final OMS clone and setup on Target OEM server
+#   hosts: "{{ target_server }}"
+#   become: true
+#   tasks:
+#     - name: Clone OMS software
+#       import_role:
+#         name: clone_oms
+
+#     - name: Configure OEM plugins
+#       import_role:
+#         name: configure_plugin
+
+#     - name: Start OMS service
+#       import_role:
+#         name: start_oms
+
+#     - name: Post-configuration checks
+#       import_role:
+#         name: post_config
+
