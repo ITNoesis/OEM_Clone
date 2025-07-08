@@ -3,32 +3,18 @@
   become: true
   become_user: "{{ source.os_user }}"
   shell: >
+    {{ source.oms_home }}/bin/emcli logout || true
+
     echo "{{ source.sysman_password }}" \
     | {{ source.oms_home }}/bin/emcli login -username=sysman \
     && {{ source.oms_home }}/bin/emcli get_agentimage \
          -platform="{{ platform }}" \
          -version={{ source.oem_version }}.0.0.0 \
          -destination="{{ agent_export_dest }}"
-    timeout: 30
   args:
     chdir: "{{ source.oms_home }}"
-#  no_log: true
+    executable: /bin/bash
   register: emcli_login
-#  changed_when: "'Login successful' in emcli_login.stdout or 'already logged in' in emcli_login.stdout"
-
-# - name: Extract OEM agent software via EMCLI
-#   become: true
-#   become_user: "{{ source.os_user }}"
-#   shell: >
-#     {{ source.oms_home }}/bin/emcli get_agentimage \
-#       -platform="{{ platform }}" \
-#       -version={{ source.oem_version }}.0.0.0 \
-#       -destination={{ agent_export_dest }}
-#   args:
-#     chdir: "{{ source.oms_home }}"
-#   register: agent_extract
-#   changed_when: "'Extraction complete' in agent_extract.stdout"
-#   failed_when: agent_extract.rc != 0
 
 - name: Create tarball of the agent software directory
   become: true
