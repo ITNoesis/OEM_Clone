@@ -1,0 +1,66 @@
+  - name: Ensure PFILE directory exists
+    file:
+      path: "{{ target.pfile_dir }}"
+      state: directory
+      owner: "{{ target.os_user }}"
+      group: "{{ target.os_user }}"
+      mode: '0755'
+
+  - name: Generate PFILE from SPFILE
+    shell: |
+      . /home/{{ target.os_user }}/.bash_profile
+      {{ target.oracle_home }}/bin/sqlplus -s / as sysdba <<EOF
+      CREATE PFILE='{{ target.pfile_dir }}/init{{ target.db_name }}.ora' FROM SPFILE;
+      EXIT;
+      EOF
+    args:
+      creates: "{{ target.pfile_dir }}/init{{ target.db_name }}.ora"
+    become_user: "{{ target.os_user }}"
+
+  - name: Template init.ora for duplicate
+    template:
+      src: init.ora.j2
+      dest: "{{ pfile_dir }}/initdup_{{ target.db_name }}.ora"
+      owner: "{{ target.os_user }}"
+      group: "{{ target.os_user }}"
+      mode: '0644'
+
+  - name: Create RMAN duplication script
+    template:
+      src: duplication.rman.j2
+      dest: "/tmp/dup_{{ target.db_name }}.rman"
+      owner: "{{ target.os_user }}"
+      group: "{{ target.os_user }}"
+      mode: '0644'
+
+  - name: Run RMAN duplicate database
+    shell: |
+      . /home/{{ target.os_user }}/.bash_profile
+      {{ target.oracle_home }}/bin/rman TARGET sysman/{{ sysman_password }}@{{ network_alias }} CATALOG {{ rman_catalog_user }}/{{ rman_catalog_pass }}@RCAT \
+      PARFILE=/tmp/dup_{{ target.db_name }}.rman
+    args:
+      executable: /bin/bash
+    register: rman_dup
+    failed_when: rman_dup.rc != 0
+    become_user: "{{ oracle_user }}"
+
+  - name: Create SPFILE for duplicated DB
+    shell: |
+      . /home/{{ target.os_user }}/.bash_profile
+      {{ target.oracle_home }}/bin/sqlplus -s / as sysdba <<EOF
+      CREATE SPFILE='{{ spfile }}' FROM PFILE='{{ pfile_dir }}/initdup_{{ target.db_name }}.ora';
+      EXIT;
+      EOF
+    args:
+      creates: '{{ spfile }}'
+    become_user: "{{ target.os_user }}"
+
+  - name: Startup duplicated database
+    shell: |
+      . /home/{{ target.os_user }}/.bash_profile
+      {{ target.oracle_home }}/bin/sqlplus -s / as sysdba <<EOF
+      STARTUP MOUNT;
+      ALTER DATABASE OPEN;
+      EXIT;
+      EOF
+    become_user: "{{ target.os_user }}"
