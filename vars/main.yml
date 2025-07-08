@@ -5,6 +5,10 @@ source:
   agent_base: /refresh1/agent135
   os_user: oracle
   db_name: oemdb
+  db_unique_name: oemdb
+  db_fra_path: 
+  db_backup_path:
+  db_data_path: 
   repo_conn_str: "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=dbhost)(PORT=1521))(CONNECT_DATA=(SID=EMREP)))"
   em_domain_name: GCDomain
   msport: 7202
@@ -18,7 +22,16 @@ target:
   oem_version: 13.5
   oracle_home: /u01/app/oracle/product/19.3.0/dbhome_1
   oms_home: /u01/app/middleware/em135
-
+  db_name: oemdbclone
+  db_unique_name: oemdbclone
+  db_fra_path: 
+  db_data_path: 
+  db_diagnostic_destination:
+  db_remote_listener: 
+  db_utl_file_dir: 
+  db_sga_max_size: 
+  db_sga_target: 
+  db_pga_aggregate_target: 
 oms_clone_dir: /oembackup/oms_clone
 agent_software: /tmp/13.5.0.0.0_AgentCore_226.zip
 repo_conn_str: "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=dbhost)(PORT=1521))(CONNECT_DATA=(SID=EMREP)))"
