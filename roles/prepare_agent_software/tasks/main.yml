@@ -16,12 +16,12 @@
     executable: /bin/bash
   register: emcli_login
 
-- name: Create tarball of the agent software directory
+- name: Create tarball of the agent software directory/ library
   become: true
   become_user: "{{ source.os_user }}"
   archive:
     path: "{{ source.agent_base_path }}/"
-    dest: "{{ agent_export_dest }}/agent_software_{{ source.oem_version }}.tar.gz"
+    dest: "{{ agent_export_dest }}/agent_software/agent_software_{{ source.oem_version }}.tar.gz"
     format: gz
   register: agent_archive
   changed_when: agent_archive.dest is defined
