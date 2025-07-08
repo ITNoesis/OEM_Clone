@@ -3,13 +3,21 @@
 # Created by: Arun Yadav
 # Playbook to clone OEM from one server to another
 
-- name: Install Agent on Target OEM server
+- name: Install Required Packages on Target OEM server
   hosts: "{{ target_server }}"
   become: true
   tasks:
-    - name: install_agent role
+    - name: install_req_packages role
       import_role:
-        name: install_agent
+        name: install_req_packages
+
+# - name: Install Agent on Target OEM server
+#   hosts: "{{ target_server }}"
+#   become: true
+#   tasks:
+#     - name: install_agent role
+#       import_role:
+#         name: install_agent
 
 # - name: Paste OMS binary from Source to Target OEM server
 #   hosts: "{{ source_server }}"
