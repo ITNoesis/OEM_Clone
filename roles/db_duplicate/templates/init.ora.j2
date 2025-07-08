@@ -1,0 +1,7 @@
+  db_name='{{ target.db_name }}'
+  db_unique_name='{{ target.db_unique_name }}'
+  control_files=(+DATA/{{ target.db_name }}/control01.ctl)
+  diagnostic_dest='{{ target.flash_recovery_area }}'
+  open_cursors=300
+  processes=300
+  memory_target=1G
