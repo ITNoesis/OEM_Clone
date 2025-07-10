@@ -20,7 +20,7 @@
 
 - name: Extract agent software
   become: true
-  become_user: "{{ source.os_user }}"
+  become_user: "{{ target.os_user }}"
   unarchive:
     src: "{{ target.agent_base }}/{{target.oem_version}}.0.0.0_AgentCore_226.zip"
     dest: "{{ target.agent_base }}"
