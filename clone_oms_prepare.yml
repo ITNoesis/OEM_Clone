@@ -27,14 +27,6 @@
         name: copy_emkey
       run_once: true
 
-# - name: Validate OEM repository DB on Target OEM server
-#   hosts: "{{ target_server }}"
-#   become: true
-#   tasks:
-#     - name: clone_repo_db role
-#       import_role:
-#         name: clone_repo_db
-
 - name: Prepare OMS binaries on Source OEM server
   hosts: "{{ source_server }}"
   become: true
@@ -45,4 +37,14 @@
     - name: Prepare binaries
       import_role:
         name: prepare_binaries
-## Testing completed successfully until here...
+
+- name: Prepare agent software
+  hosts: "{{ source_server }}"
+  become: true
+  vars_files:
+    - vars/main.yml
+  become_user: "{{ source.os_user }}"
+  tasks:
+    - name: Prepare agent software
+      import_role:
+        name: prepare_agent_software

@@ -6,28 +6,35 @@
 - name: Install Required Packages on Target OEM server
   hosts: "{{ target_server }}"
   become: true
+  vars_files:
+    - vars/main.yml
   tasks:
     - name: install_req_packages role
       import_role:
         name: install_req_packages
 
-# - name: Install Agent on Target OEM server
-#   hosts: "{{ target_server }}"
-#   become: true
-#   tasks:
-#     - name: install_agent role
-#       import_role:
-#         name: install_agent
+- name: Install Agent on Target OEM server
+  hosts: "{{ target_server }}"
+  become: true
+  vars_files:
+    - vars/main.yml
+  tasks:
+    - name: install_agent role
+      import_role:
+        name: install_agent
 
-# - name: Paste OMS binary from Source to Target OEM server
-#   hosts: "{{ source_server }}"
-#   become: true
-#   tasks:
-#     - name: paste_binary role (delegated to target)
-#       import_role:
-#         name: paste_binary
-#       delegate_to: "{{ target_server }}"
-#       run_once: true
+- name: Paste OMS binary from Source to Target OEM server
+  hosts: "{{ target_server }}"
+  become: true
+  vars_files:
+    - vars/main.yml
+  tasks:
+    - name: paste_binary role
+      import_role:
+        name: paste_binary
+      run_once: true
+
+# Testing completed until here...
 
 # - name: Recreate OPSS schema if OEM ≤ 13.4 on Target
 #   hosts: "{{ target_server }}"
@@ -60,4 +67,3 @@
 #     - name: Post-configuration checks
 #       import_role:
 #         name: post_config
-
