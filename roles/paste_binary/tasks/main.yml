@@ -22,3 +22,17 @@
       - "Stderr: {{ paste_binary_result.stderr | trim }}"
       - "Return code: {{ paste_binary_result.rc }}"
   when: paste_binary_result is defined
+
+- name: Rename emInstanceMapping.properties for backup
+  become: true
+  become_user: "{{ target.os_user }}"
+  ansible.builtin.command:
+    cmd:
+      - mv
+      - "{{ target.oms_home }}/sysman/config/emInstanceMapping.properties"
+      - "{{ target.oms_home }}/sysman/config/emInstanceMapping.properties.bak"
+    creates: "{{ target.oms_home }}/sysman/config/emInstanceMapping.properties.bak"
+    removes: "{{ target.oms_home }}/sysman/config/emInstanceMapping.properties"
+  register: rename_em_mapping
+  changed_when: rename_em_mapping.rc == 0
+  failed_when: rename_em_mapping.rc != 0
