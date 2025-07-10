@@ -1,16 +1,40 @@
----
-- name: Clone the OMS
-  shell: >
-    {{ oracle_home }}/bin/omsca new -nostart
-    -EM_DOMAIN_NAME {{ em_domain_name }}
-    -NM_USER nodemanager
-    -AS_USERNAME weblogic
-    -MSPORT {{ msport }}
-    -REP_CONN_STR '{{ repo_conn_str }}'
-    -reuseOpssStore
-  become_user: oracle
+- name: Perform Silent OMS clone
+  become: yes
+  become_user: "{{ target.os_user }}"
+  ansible.builtin.shell: |
+    cat <<EOF | "{{ target.oms_home }}/bin/omsca" new -nostart \
+      -EM_DOMAIN_NAME "{{ em_domain_name }}" \
+      -NM_USER nodemanager \
+      -AS_USERNAME weblogic \
+      -MSPORT "{{ msport }}" \
+      -REP_CONN_STR "{{ repo_conn_str }}" \
+      -reuseOpssStore
+    {{ target.oms_host_name }}
+    {{ target.admin_server_https_port }}
+    {{ target.as_user_password }}
+    {{ target.as_user_password }}
+    {{ target.oms_host_name }}
+    {{ target.upload_http_port }}
+    {{ target.upload_https_port }}
+    {{ target.oms_config_files_path }}
+    {{ target.node_manager_password }}
+    {{ target.node_manager_password }}
+    {{ target.sysman_password }}
+    {{ target.sys_password }}
+    {{ target.agent_reg_password }}
+    {{ target.agent_reg_password }}
+    EOF
+  args:
+    chdir: "{{ target.oms_home }}/bin"
+    executable: /bin/bash
+  register: clone_oms_result
+  no_log: true
+  changed_when: clone_oms_result.rc == 0
+  failed_when: clone_oms_result.rc != 0
 
-- name: Validate OMS clone
-  fail:
-    msg: "OMS clone failed. Check logs for more details."
-  when: "'EM completed successfully' not in omsca_result.stdout"
+- name: Display OMS clone output
+  ansible.builtin.debug:
+    msg:
+      - "Stdout: {{ clone_oms_result.stdout | trim }}"
+      - "Stderr: {{ clone_oms_result.stderr | trim }}"
+      - "Return code: {{ clone_oms_result.rc }}"

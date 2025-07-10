@@ -24,6 +24,22 @@ target:
   agent_base: /u01/app/middleware/agent
   os_user: oracle
   os_group: oinstall
+  oms_host_name: 
+  db_name: oemdb
+  repo_conn_str: "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=dbhost)(PORT=1521))(CONNECT_DATA=(SID=oemdb)))"
+  em_domain_name: GCDomain
+  msport: 7202
+  admin_server_https_port: 
+  agent_port: 3872
+  upload_http_port: 
+  upload_https_port: 
+  agent_reg_password: mysecretpassword #Should be same as source OMS
+  sys_password: my_sys_password #Should be same as source OMS
+  sysman_password: my_sysman_password #Should be same as source OMS 
+  as_user_password:  #Weblogic password - Can be same or different than source OMS
+  node_manager_password:  #Weblogic password - Can be same or different than source OMS
+  oms_config_files_path: #Path to OMS Instance Home
+
 
 oms_clone_dir: /oembackup/oms_clone
 
