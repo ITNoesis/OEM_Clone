@@ -36,3 +36,12 @@
   register: rename_em_mapping
   changed_when: rename_em_mapping.rc == 0
   failed_when: rename_em_mapping.rc != 0
+
+- name: Extract software library on target OMS
+  become: true
+  become_user: "{{ target.os_user }}"
+  ansible.builtin.unarchive:
+    src: "{{ agent_software_lib }}/agent_software_{{ source.oem_version }}.tar.gz"
+    dest: "{{ source.agent_soft_lib_path }}"
+    remote_src: true
+    creates: "{{ source.agent_soft_lib_path }}/swlib"
