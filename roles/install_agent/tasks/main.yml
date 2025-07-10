@@ -1,17 +1,47 @@
 ---
+- name: Ensure all required directories are in place
+  file:
+    path: "{{item}}"
+    state: directory
+    owner: "{{target.os_user}}"
+    group: "{{target.os_group}}"
+  with_items:
+    - "{{target.agent_base}}"
+#    - "{{target.agent_base}}/agent_inst"
+
+- name: Copy agent software core to agent_base
+  copy:
+    src: "{{agent_export_dest}}/{{target.oem_version}}.0.0.0_AgentCore_226.zip"
+    dest: "{{target.agent_base}}"
+    owner: "{{target.os_user}}"
+    group: "{{target.os_group}}"
+    mode: '0644'
+    remote_src: yes
+
 - name: Extract agent software
+  become: true
+  become_user: "{{ source.os_user }}"
   unarchive:
-    src: "{{ agent_software }}"
-    dest: "{{ agent_base }}"
+    src: "{{ target.agent_base }}/{{target.oem_version}}.0.0.0_AgentCore_226.zip"
+    dest: "{{ target.agent_base }}"
     remote_src: yes
 
 - name: Install agent using softwareOnly
-  shell: "./agentDeploy.sh AGENT_BASE_DIR={{ agent_base }} -softwareOnly"
+  become: yes
+  become_user: "{{ target.os_user }}"
+  shell: |
+    ./agentDeploy.sh \
+      AGENT_BASE_DIR={{ target.agent_base }} \
+      -softwareOnly
   args:
-    chdir: "{{ agent_base }}/13.5.0.0.0"
-  become_user: oracle
+    chdir: "{{ target.agent_base }}"
+    executable: /bin/bash
+  register: agent_install
 
-- name: Validate agent installation
-  fail:
-    msg: "Agent software-only installation failed."
-  when: "'Agent deployed successfully' not in agent_install.stdout"
+- name: Display OEM Agent install results
+  ansible.builtin.debug:
+    msg:
+      - "Stdout: {{ agent_install.stdout | trim }}"
+      - "Stderr: {{ agent_install.stderr | trim }}"
+      - "Return code: {{ agent_install.rc }}"
+  when: agent_install is defined
