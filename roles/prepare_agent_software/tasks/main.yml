@@ -7,6 +7,7 @@
 
     echo "{{ source.sysman_password }}" \
     | {{ source.oms_home }}/bin/emcli login -username=sysman \
+    && {{ source.oms_home }}/bin/emcli sync \
     && {{ source.oms_home }}/bin/emcli get_agentimage \
          -platform="{{ platform }}" \
          -version={{ source.oem_version }}.0.0.0 \
@@ -14,14 +15,25 @@
   args:
     chdir: "{{ source.oms_home }}"
     executable: /bin/bash
-  register: emcli_login
+#  environment:
+#    UNZIP_LOC: "{{ source.oms_home }}/bin/unzip"
+#    ZIP_LOC: "{{ source.oms_home }}/bin/zip"
+  register: oem_agent_prep
+
+- name: Display OEM Agent software prep results
+  ansible.builtin.debug:
+    msg:
+      - "Stdout: {{ oem_agent_prep.stdout | trim }}"
+      - "Stderr: {{ oem_agent_prep.stderr | trim }}"
+      - "Return code: {{ oem_agent_prep.rc }}"
+  when: oem_agent_prep is defined
 
 - name: Create tarball of the agent software directory/ library
   become: true
   become_user: "{{ source.os_user }}"
   archive:
-    path: "{{ source.agent_base_path }}/"
-    dest: "{{ agent_export_dest }}/agent_software/agent_software_{{ source.oem_version }}.tar.gz"
+    path: "{{ source.agent_soft_lib_path }}/"
+    dest: "{{ agent_software_lib }}/agent_software_{{ source.oem_version }}.tar.gz"
     format: gz
   register: agent_archive
   changed_when: agent_archive.dest is defined

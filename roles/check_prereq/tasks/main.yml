@@ -4,7 +4,7 @@
   become_user: "{{ source.os_user }}"
   environment:
     ORACLE_HOME: "{{ source.oracle_home }}"
-    ORACLE_SID: "{{ source.db_name }}{{ source.instance_number }}"
+    ORACLE_SID: "{{ source.db_name }}"
   shell: |
     {{ source.oracle_home }}/bin/sqlplus -s "/ as sysdba" <<SQLPLUS
     SET PAGESIZE 0 FEEDBACK OFF VERIFY OFF HEADING OFF ECHO OFF
