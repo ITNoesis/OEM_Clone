@@ -1,34 +1,29 @@
+---
 - name: Perform Silent OMS clone
   become: yes
   become_user: "{{ target.os_user }}"
   ansible.builtin.shell: |
-    cat <<EOF | "{{ target.oms_home }}/bin/omsca" new -nostart \
-      -EM_DOMAIN_NAME "{{ em_domain_name }}" \
+      {{ target.oms_home }}/bin/omsca new -nostart \
+      -EM_DOMAIN_NAME {{ target.em_domain_name }} \
       -NM_USER nodemanager \
+      -NM_PWD {{ target.node_manager_password }} \
       -AS_USERNAME weblogic \
-      -MSPORT "{{ msport }}" \
-      -REP_CONN_STR "{{ repo_conn_str }}" \
+      -AS_PASSWORD {{ target.as_user_password }} \
+      -MS_HTTPS_PORT {{ target.msport }} \
+      -REP_CONN_STR '{{ target.repo_conn_str }}' \
+      -AS_HOST {{ target.oms_host_name }} \
+      -AS_HTTPS_PORT {{ target.admin_server_https_port }} \
+      -CONFIG_HOME {{ target.oms_config_files_path }} \
+      -EM_INSTANCE_HOST {{ target.oms_host_name }} \
+      -EM_UPLOAD_PORT {{ target.upload_http_port }} \
+      -EM_UPLOAD_HTTPS_PORT {{ target.upload_https_port }} \
+      -REP_PWD {{ target.sysman_password }} \
+      -REG_PWD {{ target.agent_reg_password }} \
       -reuseOpssStore
-    {{ target.oms_host_name }}
-    {{ target.admin_server_https_port }}
-    {{ target.as_user_password }}
-    {{ target.as_user_password }}
-    {{ target.oms_host_name }}
-    {{ target.upload_http_port }}
-    {{ target.upload_https_port }}
-    {{ target.oms_config_files_path }}
-    {{ target.node_manager_password }}
-    {{ target.node_manager_password }}
-    {{ target.sysman_password }}
-    {{ target.sys_password }}
-    {{ target.agent_reg_password }}
-    {{ target.agent_reg_password }}
-    EOF
   args:
     chdir: "{{ target.oms_home }}/bin"
     executable: /bin/bash
   register: clone_oms_result
-  no_log: true
   changed_when: clone_oms_result.rc == 0
   failed_when: clone_oms_result.rc != 0
 
