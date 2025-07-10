@@ -7,13 +7,12 @@
     ORACLE_SID:   "{{ target.db_name }}"
   shell: |
     echo "SET PAGESIZE 0 FEEDBACK OFF VERIFY OFF HEADING OFF ECHO OFF
-    SELECT epv.plugin_id||'='||epv.version||'.'||epv.rev_version
-      FROM em_plugin_version epv
-      JOIN em_current_deployed_plugin ecp
-        ON epv.plugin_version_id = ecp.plugin_version_id
-     WHERE epv.plugin_type NOT IN ('BUILT_IN_TARGET_TYPE','INSTALL_HOME')
-       AND ecp.dest_type='2'; 
-    EXIT;" | sqlplus -s "/ as sysdba"
+    SELECT epv.plugin_id || '=' || epv.version
+      FROM sysman.em_plugin_version epv, sysman.em_current_deployed_plugin ecp
+     WHERE epv.plugin_type NOT IN ('BUILT_IN_TARGET_TYPE', 'INSTALL_HOME')
+       AND ecp.dest_type='2'
+       AND epv.plugin_version_id = ecp.plugin_version_id;
+    EXIT;" | {{ target.oracle_home }}/bin/sqlplus -s "/ as sysdba"
   args:
     executable: /bin/bash
   register: plugin_query
@@ -22,11 +21,7 @@
 
 - name: Assemble plugin list for pluginca
   set_fact:
-    plugin_list: >-
-      {{ plugin_query.stdout_lines
-         | reject('equal','')      # remove any empty lines
-         | list
-         | join(',') }}
+    plugin_list: "{{ plugin_query.stdout_lines | select('match', '.+') | join(',') }}"
 
 - name: Display plugin list
   debug:
@@ -47,7 +42,7 @@
   changed_when: pluginca_result.rc == 0
   failed_when: pluginca_result.rc != 0
 
-- name: Debug pluginca result
+- name: Display pluginca result
   debug:
     msg:
       - "Stdout: {{ pluginca_result.stdout | trim }}"
