@@ -1,12 +1,44 @@
 ---
-- name: Modify emctl for central console
-  replace:
-    path: "{{ oracle_home }}/bin/emctl"
-    regexp: 'CONSOLE_CFG=agent'
-    replace: 'CONSOLE_CFG=central'
+- name: Backup emctl script
+  become: yes
+  ansible.builtin.copy:
+    src: "{{ target.oms_home }}/bin/emctl"
+    dest: "{{ target.oms_home }}/bin/emctl.bak_{{ ansible_date_time.iso8601_basic }}"
+    remote_src: yes
+    owner: "{{ target.os_user }}"
+    group: "{{ target.os_group }}"
+    mode: '0755'
+  register: emctl_backup
 
-- name: Start OMS
-  shell: "./emctl start oms"
-  args:
-    chdir: "{{ oracle_home }}/bin"
-  become_user: oracle
+- name: Display full path of emctl backup file
+  ansible.builtin.debug:
+    msg:
+      - "Backed up emctl to {{ emctl_backup.dest }}"
+
+- name: Update CONSOLE_CFG in emctl
+  become: yes
+  ansible.builtin.replace:
+    path: "{{ target.oms_home }}/bin/emctl"
+    regexp: '^(\s*CONSOLE_CFG=)agent'
+    replace: '\1central'
+  register: emctl_replace
+
+- name: Display modificaton in emctl
+  ansible.builtin.debug:
+    msg:
+      - "emctl file updated: {{ emctl_replace.changed }}"
+
+- name: Start the OMS
+  become: yes
+  become_user: "{{ target.os_user }}"
+  ansible.builtin.command:
+    cmd: "./emctl start oms"
+    chdir: "{{ target.oms_home }}/bin"
+  register: oms_start
+
+- name: Debug OMS start result
+  ansible.builtin.debug:
+    msg:
+      - "Stdout: {{ oms_start.stdout | trim }}"
+      - "Stderr: {{ oms_start.stderr | trim }}"
+      - "Return code: {{ oms_start.rc }}"
