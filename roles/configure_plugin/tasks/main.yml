@@ -1,8 +1,55 @@
 ---
-- name: Deploy Plugins
-  shell: >
-    {{ oracle_home }}/bin/pluginca -action deploy -isFirstOMS true
-    -plugins "{{ plugin_list }}"
-    -oracleHome {{ oracle_home }}
-    -middlewareHome {{ oracle_home }}
-  become_user: oracle
+- name: Query deployed plugins from OMS Repository DB
+  become: yes
+  become_user: "{{ target.os_user }}"
+  environment:
+    ORACLE_HOME: "{{ target.oracle_home }}"
+    ORACLE_SID:   "{{ target.db_name }}"
+  shell: |
+    echo "SET PAGESIZE 0 FEEDBACK OFF VERIFY OFF HEADING OFF ECHO OFF
+    SELECT epv.plugin_id||'='||epv.version||'.'||epv.rev_version
+      FROM em_plugin_version epv
+      JOIN em_current_deployed_plugin ecp
+        ON epv.plugin_version_id = ecp.plugin_version_id
+     WHERE epv.plugin_type NOT IN ('BUILT_IN_TARGET_TYPE','INSTALL_HOME')
+       AND ecp.dest_type='2'; 
+    EXIT;" | sqlplus -s "/ as sysdba"
+  args:
+    executable: /bin/bash
+  register: plugin_query
+  changed_when: false
+  failed_when: plugin_query.rc != 0
+
+- name: Assemble plugin list for pluginca
+  set_fact:
+    plugin_list: >-
+      {{ plugin_query.stdout_lines
+         | reject('equal','')      # remove any empty lines
+         | list
+         | join(',') }}
+
+- name: Display plugin list
+  debug:
+    msg: "Plugins to deploy: {{ plugin_list }}"
+
+- name: Deploy plugins
+  become: yes
+  become_user: "{{ target.os_user }}"
+  ansible.builtin.shell: >
+    {{ target.oms_home }}/bin/pluginca -action deploy -isFirstOMS true \
+      -plugins "{{ plugin_list }}" \
+      -oracleHome "{{ target.oms_home }}" \
+      -middlewareHome "{{ target.oms_home }}"
+  args:
+    chdir: "{{ target.oms_home }}/bin"
+    executable: /bin/bash
+  register: pluginca_result
+  changed_when: pluginca_result.rc == 0
+  failed_when: pluginca_result.rc != 0
+
+- name: Debug pluginca result
+  debug:
+    msg:
+      - "Stdout: {{ pluginca_result.stdout | trim }}"
+      - "Stderr: {{ pluginca_result.stderr | trim }}"
+      - "Return code: {{ pluginca_result.rc }}"
