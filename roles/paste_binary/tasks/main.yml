@@ -1,10 +1,24 @@
 ---
-- name: Recreate ORACLE_HOME using pasteBinary.sh
-  shell: >
-    {{ agent_base }}/agent_13.5.0.0.0/oracle_common/bin/pasteBinary.sh
-    -javaHome {{ agent_base }}/agent_13.5.0.0.0/oracle_common/jdk/
-    -archiveLoc {{ oms_clone_jar }}
-    -targetOracleHomeLoc {{ oracle_home }}
-    -executeSysPrereqs false
+- name: Recreate OMS_HOME on TARGET OMS using pasteBinary.sh
+  become: yes
+  become_user: "{{ target.os_user }}"
+  ansible.builtin.shell: |
+    "{{ target.agent_base }}/agent_{{target.oem_version}}.0.0.0/oracle_common/bin/pasteBinary.sh" \
+    -javaHome "{{ target.agent_base }}/agent_{{target.oem_version}}.0.0.0/oracle_common/jdk/" \
+    -archiveLoc "{{ oms_clone_dir }}/oms_clone.jar" \
+    -targetOracleHomeLoc "{{ target.oms_home }}" \
+    -executeSysPrereqs false \
     -silent true
-  become_user: oracle
+  args:
+    executable: /bin/bash
+  register: paste_binary_result
+  changed_when: paste_binary_result.rc == 0
+  failed_when: paste_binary_result.rc != 0
+
+- name: Display TARGET OMS_HOME install results
+  ansible.builtin.debug:
+    msg:
+      - "Stdout: {{ paste_binary_result.stdout | trim }}"
+      - "Stderr: {{ paste_binary_result.stderr | trim }}"
+      - "Return code: {{ paste_binary_result.rc }}"
+  when: paste_binary_result is defined
