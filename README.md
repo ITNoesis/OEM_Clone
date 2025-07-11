@@ -7,7 +7,10 @@ Automated, silent Oracle Enterprise Manager (OEM) Cloud Control OMS Clone using 
 
 # OEM OMS Clone Automation using Ansible
 
-This repository provides a fully automated procedure to clone Oracle Enterprise Manager (OEM) Cloud Control OMS to a new Linux server. With the exception of cloning the repository database and assumes that the database clone has been performed successfully. I plan to add a role for db_duplicate in a future release. 
+This repository provides a fully automated procedure to clone Oracle Enterprise Manager (OEM) Cloud Control OMS to a new Linux server. With the exception of cloning the repository database and assumes that the database clone has been performed successfully. I plan to add a role for db_duplicate in a future release.
+This code is provided "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
+
+I have tested this code successfully in a controlled environment, but every organization’s infrastructure, security policies, and software versions can differ hence, please check all the code, understand what it is doing, make necessary modifications, check ansible and system requirements, review and customize the variables, take necessary backups, and test before implementing this in production.
 
 ---
 
@@ -17,14 +20,14 @@ This repository provides a fully automated procedure to clone Oracle Enterprise 
 ---
 
 ## High-Level Steps Performed:
-# Source OMS
+### Source OMS
 - Check prerequisite
 - Copy EMKey to repository
 - Prepare OMS binaries on source
 - Prepare agent software on source
-# OMS Repository clone
+### OMS Repository clone
 - Clone OEM repository database (manual step). OEM13.5 supports both CDB and non-CDB repository database. There can be several approaches to clone the database hence, I left this piece, for now, to be performed based on your preference. **** This step must be executed before proceeding with the next steps.
-# Target OMS
+### Target OMS
 - Install Required Packages on Target OEM server
 - Install Agent on Target OEM server
 - Paste OMS binary from Source to Target OEM server
@@ -112,6 +115,7 @@ ansible-playbook -i your_inventory_loc/hosts.yml clone_oms.yml -f 5 -e 'source_s
 ```
 ---
 # Contributing
-Pull requests and issues are welcome. Please ensure any changes are thoroughly tested.
+- If you encounter bugs, missing features, or unexpected behavior, please open an issue or submit a pull request.
+- Share your enhancements to help improve the code for community benefit.
 
 Thanks and I hope it helps!
