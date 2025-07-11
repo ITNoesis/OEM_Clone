@@ -28,6 +28,55 @@
     msg:
       - "emctl file updated: {{ emctl_replace.changed }}"
 
+- name: Stop OMS at all times
+  become: yes
+  become_user: "{{ target.os_user }}"
+  ansible.builtin.shell: >
+    {{ target.oms_home }}/bin/emctl stop oms -all -force
+  args:
+    chdir: "{{ target.oms_home }}/bin"
+    executable: /bin/bash
+  register: oms_stop
+  ignore_errors: yes
+
+- name: Clean up lock and tmp files before OMS start
+  become: yes
+  become_user: "{{ target.os_user }}"
+  ansible.builtin.shell: |
+    rm -f "{{ target.oms_home }}/user_projects/domains/GCTstDomain/servers/EMGC_ADMINSERVER/data/ldap/ldapfiles/EmbeddedLDAP.lok"
+    rm -f "{{ target.oms_home }}/user_projects/domains/GCTstDomain/servers/EMGC_OMS1/data/store/diagnostics/WLS_DIAGNOSTICS000000.DAT"
+    rm -f "{{ target.oms_home }}/user_projects/domains/GCTstDomain/nodemanager/nodemanager.process.lck"
+    rm -rf "{{ target.oms_home }}/user_projects/domains/GCTstDomain/servers/EMGC_ADMINSERVER/tmp/"*
+  args:
+    executable: /bin/bash
+  register: cleanup_result
+  ignore_errors: yes
+
+- name: Reset job_queue_processes in target OMS DB
+  become: yes
+  become_user: "{{ target.os_user }}"
+  environment:
+    ORACLE_HOME: "{{ target.oracle_home }}"
+    ORACLE_SID:   "{{ target.db_name }}"
+  shell:
+    cmd: |
+     {{ target.oracle_home }}/bin/sqlplus -s "/ as sysdba" <<SQLPLUS
+     ALTER SYSTEM SET job_queue_processes=1000 SCOPE=BOTH;
+     /
+     commit;
+     exit;
+     SQLPLUS
+  register: job_queue_result
+  changed_when: "'System altered.' in job_queue_result.stdout"
+  failed_when: job_queue_result.rc != 0
+
+- name: Display job_queue_processes change result
+  ansible.builtin.debug:
+    msg:
+      - "Stdout: {{ job_queue_result.stdout | trim }}"
+      - "Stderr: {{ job_queue_result.stderr | trim }}"
+      - "Return code: {{ job_queue_result.rc }}"
+
 - name: Start the OMS
   become: yes
   become_user: "{{ target.os_user }}"
