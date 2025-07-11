@@ -3,8 +3,6 @@
 # OEM_Clone - v1.0.0
 Automated, silent Oracle Enterprise Manager (OEM) Cloud Control OMS Clone using Ansible. Supported OEM versions: 13.5
 
-# Suggestions and contributions are most welcome!
-
 # OEM OMS Clone Automation using Ansible
 
 This repository provides a fully automated procedure to clone Oracle Enterprise Manager (OEM) Cloud Control OMS to a new Linux server. With the exception of cloning the repository database and assumes that the database clone has been performed successfully. I plan to add a role for db_duplicate in a future release.
