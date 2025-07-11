@@ -43,10 +43,10 @@
   become: yes
   become_user: "{{ target.os_user }}"
   ansible.builtin.shell: |
-    rm -f "{{ target.oms_home }}/user_projects/domains/GCTstDomain/servers/EMGC_ADMINSERVER/data/ldap/ldapfiles/EmbeddedLDAP.lok"
-    rm -f "{{ target.oms_home }}/user_projects/domains/GCTstDomain/servers/EMGC_OMS1/data/store/diagnostics/WLS_DIAGNOSTICS000000.DAT"
-    rm -f "{{ target.oms_home }}/user_projects/domains/GCTstDomain/nodemanager/nodemanager.process.lck"
-    rm -rf "{{ target.oms_home }}/user_projects/domains/GCTstDomain/servers/EMGC_ADMINSERVER/tmp/"*
+    rm -f "{{ target.oms_home }}/user_projects/domains/{{ target.em_domain_name }}/servers/EMGC_ADMINSERVER/data/ldap/ldapfiles/EmbeddedLDAP.lok"
+    rm -f "{{ target.oms_home }}/user_projects/domains/{{ target.em_domain_name }}/servers/EMGC_OMS1/data/store/diagnostics/WLS_DIAGNOSTICS000000.DAT"
+    rm -f "{{ target.oms_home }}/user_projects/domains/{{ target.em_domain_name }}/nodemanager/nodemanager.process.lck"
+    rm -rf "{{ target.oms_home }}/user_projects/domains/{{ target.em_domain_name }}/servers/EMGC_ADMINSERVER/tmp/"*
   args:
     executable: /bin/bash
   register: cleanup_result
