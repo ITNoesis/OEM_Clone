@@ -16,7 +16,6 @@ source:
   sysman_password: my_sysman_password
   agent_soft_lib_path: /u01/app/middleware/software_lib
 
-
 target:
   oem_version: 13.5
   oracle_home: /u01/app/oracle/product/19.3.0/dbhome_1
@@ -24,10 +23,10 @@ target:
   agent_base: /u01/app/middleware/agent
   os_user: oracle
   os_group: oinstall
-  oms_host_name: 
+  oms_host_name: newoms.example.com
   db_name: oemdb
   repo_conn_str: "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=dbhost)(PORT=1521))(CONNECT_DATA=(SID=oemdb)))"
-  em_domain_name: GCDomain
+  em_domain_name: GCNewDomain #Must be different from source
   msport: 7202
   admin_server_https_port: 
   agent_port: 3872
@@ -40,16 +39,7 @@ target:
   node_manager_password:  #Weblogic password - Can be same or different than source OMS
   oms_config_files_path: #Path to OMS Instance Home
 
-
 oms_clone_dir: /oembackup/oms_clone
-
-agent_software: /tmp/13.5.0.0.0_AgentCore_226.zip
-
-repo_conn_str: "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=dbhost)(PORT=1521))(CONNECT_DATA=(SID=oemdb)))"
-plugin_list: "oracle.em.smis,oracle.em.satc,oracle.sysman.orhc,oracle.sun.oss7,oracle.sysman.emct,oracle.sysman.emfa,oracle.em.savf,oracle.sysman.bda,oracle.sysman.ssa,oracle.sysman.empa,oracle.sysman.smf,oracle.sysman.vi,oracle.sysman.am,oracle.sysman.cfw,oracle.sysman.db,oracle.sysman.xa,oracle.sysman.emas,oracle.sysman.si,oracle.sysman.vt"
-
-cloned_oms_hostname: newoms.example.com
 platform: "Linux x86-64"
-#platform: "Microsoft Windows x64 (64-bit)"
 agent_export_dest: /oembackup/oms_clone/agent_export
 agent_software_lib: /oembackup/oms_clone/agent_software_lib

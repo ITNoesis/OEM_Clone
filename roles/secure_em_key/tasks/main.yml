@@ -1,3 +1,4 @@
+---
 - name: Secure EMKey after clone
   become: yes
   become_user: "{{ source.os_user }}"
