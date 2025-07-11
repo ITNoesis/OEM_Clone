@@ -1,0 +1,44 @@
+- name: Configure agent
+  become: yes
+  become_user: "{{ target.os_user }}"
+  ansible.builtin.shell: |
+    ./agentDeploy.sh \
+      AGENT_BASE_DIR={{ target.agent_base }} \
+      AGENT_INSTANCE_HOME={{ target.agent_base }}/agent_inst \
+      ORACLE_HOSTNAME={{ target.oms_host_name }} \
+      AGENT_PORT={{ target.agent_port }} \
+      -configOnly \
+      OMS_HOST={{ target.oms_host_name }} \
+      EM_UPLOAD_PORT={{ target.upload_https_port }} \
+      AGENT_REGISTRATION_PASSWORD={{ target.agent_reg_password }}
+  args:
+    chdir: "{{ target.agent_base }}/agent_{{ target.oem_version }}.0.0.0/sysman/install"
+    executable: /bin/bash
+  register: agent_configure
+  changed_when: agent_configure.rc == 0
+  failed_when: agent_configure.rc != 0
+
+- name: Display agent configuration output
+  ansible.builtin.debug:
+    msg:
+      - "Stdout: {{ agent_configure.stdout | trim }}"
+      - "Stderr: {{ agent_configure.stderr | trim }}"
+      - "Return code: {{ agent_configure.rc }}"
+
+- name: Verify agent is running
+  become: yes
+  become_user: "{{ target.os_user }}"
+  ansible.builtin.shell: >
+    {{ target.agent_base }}/agent_inst/bin/emctl status agent
+  args:
+    executable: /bin/bash
+  register: agent_status
+  changed_when: false
+  failed_when: agent_status.rc != 0
+
+- name: Display agent status
+  ansible.builtin.debug:
+    msg:
+      - "Agent status stdout: {{ agent_status.stdout | trim }}"
+      - "Agent status stderr: {{ agent_status.stderr | trim }}"
+      - "Agent status return code: {{ agent_status.rc }}"
