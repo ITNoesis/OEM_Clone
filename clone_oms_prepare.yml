@@ -10,41 +10,20 @@
   vars_files:
     - vars/main.yml
   tasks:
-    - name: check_prereq role
+    - name: Check prerequisite
       import_role:
         name: check_prereq
       run_once: true
 
-- name: Copy EMKey to repository
-  hosts: "{{ source_server }}"
-  become: true
-  become_user: "{{ source.os_user }}"
-  vars_files:
-    - vars/main.yml
-  tasks:
-    - name: copy_emkey role
+    - name: Copy EMKey to repository
       import_role:
         name: copy_emkey
       run_once: true
 
-- name: Prepare OMS binaries on Source OEM server
-  hosts: "{{ source_server }}"
-  become: true
-  vars_files:
-    - vars/main.yml
-  become_user: "{{ source.os_user }}"
-  tasks:
-    - name: Prepare binaries
+    - name: Prepare OMS binaries on Source
       import_role:
         name: prepare_binaries
 
-- name: Prepare agent software
-  hosts: "{{ source_server }}"
-  become: true
-  vars_files:
-    - vars/main.yml
-  become_user: "{{ source.os_user }}"
-  tasks:
     - name: Prepare agent software
       import_role:
         name: prepare_agent_software
