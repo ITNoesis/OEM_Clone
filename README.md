@@ -63,9 +63,9 @@ source:
   msport: 7202
   agent_port: 3872
   upload_port: 4903
-  agent_reg_password: mysecretpassword
-  sys_password: my_sys_password
-  sysman_password: my_sysman_password
+  agent_reg_password: 
+  sys_password: 
+  sysman_password: 
   agent_soft_lib_path: /u01/app/middleware/software_lib
 
 target:
@@ -84,9 +84,9 @@ target:
   agent_port: 3872
   upload_http_port: 
   upload_https_port: 
-  agent_reg_password: mysecretpassword #Should be same as source OMS
-  sys_password: my_sys_password #Should be same as source OMS
-  sysman_password: my_sysman_password #Should be same as source OMS 
+  agent_reg_password:  #Should be same as source OMS
+  sys_password:  #Should be same as source OMS
+  sysman_password:  #Should be same as source OMS 
   as_user_password:  #Weblogic password - Can be same or different than source OMS
   node_manager_password:  #Weblogic password - Can be same or different than source OMS
   oms_config_files_path: #Path to OMS Instance Home
